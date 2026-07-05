@@ -1,0 +1,21 @@
+# meta-ads-exporter configuration
+#
+# Secrets (META_ACCESS_TOKEN, OTEL_AUTH_HEADER) are NOT read from this file.
+# Set them as environment variables when running the daemon.
+
+# Meta ad account id (must match ^act_\d+$). Replace with your account id.
+account_id: "act_XXXXXXXXX"
+
+# How often to fetch today's insights from Meta.
+# Range: 5m-15m recommended. Values <5m risk rate limiting.
+poll_interval: "10m"
+
+# OTLP/HTTP metrics endpoint. For local docker-compose Mimir, use
+# http://mimir:4318/otlp/v1/metrics inside the compose network.
+otlp_endpoint: "http://localhost:4318/otlp/v1/metrics"
+
+# TCP port for /healthz and /readyz.
+health_port: 8080
+
+# slog log level: debug | info | warn | error
+log_level: "info"

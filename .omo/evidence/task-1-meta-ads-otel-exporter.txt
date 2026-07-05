@@ -1,0 +1,28 @@
+=== RUN   TestLoad_ValidConfig
+--- PASS: TestLoad_ValidConfig (0.00s)
+=== RUN   TestLoad_MissingAccessToken
+--- PASS: TestLoad_MissingAccessToken (0.00s)
+=== RUN   TestLoad_MalformedAccountID
+=== RUN   TestLoad_MalformedAccountID/plain_number
+=== RUN   TestLoad_MalformedAccountID/missing_act__prefix
+=== RUN   TestLoad_MalformedAccountID/wrong_prefix
+=== RUN   TestLoad_MalformedAccountID/empty_string
+--- PASS: TestLoad_MalformedAccountID (0.00s)
+    --- PASS: TestLoad_MalformedAccountID/plain_number (0.00s)
+    --- PASS: TestLoad_MalformedAccountID/missing_act__prefix (0.00s)
+    --- PASS: TestLoad_MalformedAccountID/wrong_prefix (0.00s)
+    --- PASS: TestLoad_MalformedAccountID/empty_string (0.00s)
+=== RUN   TestLoad_InvalidPollInterval
+--- PASS: TestLoad_InvalidPollInterval (0.00s)
+=== RUN   TestLoad_InvalidOTLPEndpoint
+=== RUN   TestLoad_InvalidOTLPEndpoint/empty
+=== RUN   TestLoad_InvalidOTLPEndpoint/no_scheme
+=== RUN   TestLoad_InvalidOTLPEndpoint/no_host
+--- PASS: TestLoad_InvalidOTLPEndpoint (0.00s)
+    --- PASS: TestLoad_InvalidOTLPEndpoint/empty (0.00s)
+    --- PASS: TestLoad_InvalidOTLPEndpoint/no_scheme (0.00s)
+    --- PASS: TestLoad_InvalidOTLPEndpoint/no_host (0.00s)
+=== RUN   TestLoad_FileNotFound
+--- PASS: TestLoad_FileNotFound (0.00s)
+PASS
+ok  	meta-marketing-exporter/internal/config	(cached)

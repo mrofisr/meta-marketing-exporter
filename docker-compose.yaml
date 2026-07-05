@@ -1,0 +1,36 @@
+# Local dev stack for meta-marketing-exporter.
+# Grafana Mimir (single-process, filesystem storage, no auth) + the exporter.
+# Dev-only: NOT production. No HA, no multi-tenancy, no auth.
+
+services:
+  mimir:
+    image: grafana/mimir:latest
+    container_name: meta-ads-mimir
+    command:
+      - "-target=all"
+      - "-config.file=/etc/mimir/mimir-config.yaml"
+      - "-auth.multitenancy-enabled=false"
+    ports:
+      # HTTP: query API, /ready health check, AND OTLP ingestion at /otlp/v1/metrics
+      - "9009:9009"
+    volumes:
+      - ./mimir-config.yaml:/etc/mimir/mimir-config.yaml:ro
+      - mimir-data:/data
+
+  exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meta-ads-exporter
+    depends_on:
+      mimir:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      # Mount the docker-network config (targets mimir:9009, not localhost).
+      - ./config.docker.yaml:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml"]
+
+volumes:
+  mimir-data:

@@ -1,0 +1,60 @@
+=== RUN   TestIsThrottled_ThrottleCodes
+=== RUN   TestIsThrottled_ThrottleCodes/code_4_-_app_limit
+=== RUN   TestIsThrottled_ThrottleCodes/code_17_-_user_limit
+=== RUN   TestIsThrottled_ThrottleCodes/code_613_-_rate_limit
+=== RUN   TestIsThrottled_ThrottleCodes/code_80000_-_biz_use_case
+=== RUN   TestIsThrottled_ThrottleCodes/code_80001_-_biz_use_case
+=== RUN   TestIsThrottled_ThrottleCodes/code_80002_-_biz_use_case
+=== RUN   TestIsThrottled_ThrottleCodes/code_80003_-_biz_use_case
+=== RUN   TestIsThrottled_ThrottleCodes/code_80004_-_biz_use_case
+=== RUN   TestIsThrottled_ThrottleCodes/code_190_-_auth_expired
+=== RUN   TestIsThrottled_ThrottleCodes/code_102_-_session_expired
+=== RUN   TestIsThrottled_ThrottleCodes/code_100_-_invalid_params
+=== RUN   TestIsThrottled_ThrottleCodes/code_0_-_zero
+--- PASS: TestIsThrottled_ThrottleCodes (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_4_-_app_limit (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_17_-_user_limit (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_613_-_rate_limit (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_80000_-_biz_use_case (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_80001_-_biz_use_case (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_80002_-_biz_use_case (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_80003_-_biz_use_case (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_80004_-_biz_use_case (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_190_-_auth_expired (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_102_-_session_expired (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_100_-_invalid_params (0.00s)
+    --- PASS: TestIsThrottled_ThrottleCodes/code_0_-_zero (0.00s)
+=== RUN   TestIsThrottled_NilAndNonAPIError
+--- PASS: TestIsThrottled_NilAndNonAPIError (0.00s)
+=== RUN   TestIsThrottled_WrappedError
+--- PASS: TestIsThrottled_WrappedError (0.00s)
+=== RUN   TestParseRetryHeader_Valid
+--- PASS: TestParseRetryHeader_Valid (0.00s)
+=== RUN   TestParseRetryHeader_MultipleEntries
+--- PASS: TestParseRetryHeader_MultipleEntries (0.00s)
+=== RUN   TestParseRetryHeader_Absent
+--- PASS: TestParseRetryHeader_Absent (0.00s)
+=== RUN   TestParseRetryHeader_NilHeaders
+--- PASS: TestParseRetryHeader_NilHeaders (0.00s)
+=== RUN   TestParseRetryHeader_MalformedJSON
+--- PASS: TestParseRetryHeader_MalformedJSON (0.00s)
+=== RUN   TestParseRetryHeader_ZeroMinutes
+--- PASS: TestParseRetryHeader_ZeroMinutes (0.00s)
+=== RUN   TestWithBackoff_SuccessOnFirstCall
+--- PASS: TestWithBackoff_SuccessOnFirstCall (0.00s)
+=== RUN   TestWithBackoff_RetriesOnThrottle
+--- PASS: TestWithBackoff_RetriesOnThrottle (0.00s)
+=== RUN   TestWithBackoff_ExhaustsThrottleRetries
+--- PASS: TestWithBackoff_ExhaustsThrottleRetries (0.00s)
+=== RUN   TestWithBackoff_NoRetryOnAuthError
+--- PASS: TestWithBackoff_NoRetryOnAuthError (0.00s)
+=== RUN   TestWithBackoff_NoRetryOnAuthError102
+--- PASS: TestWithBackoff_NoRetryOnAuthError102 (0.00s)
+=== RUN   TestWithBackoff_RetriesTransientError
+--- PASS: TestWithBackoff_RetriesTransientError (0.00s)
+=== RUN   TestWithBackoff_ExhaustsTransientRetries
+--- PASS: TestWithBackoff_ExhaustsTransientRetries (0.00s)
+=== RUN   TestWithBackoff_RespectsContextCancellation
+--- PASS: TestWithBackoff_RespectsContextCancellation (0.00s)
+PASS
+ok  	meta-marketing-exporter/internal/meta	0.012s

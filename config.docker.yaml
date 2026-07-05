@@ -1,0 +1,12 @@
+# Exporter config used INSIDE the docker-compose network.
+# Mounted into the exporter container; overrides the repo-root config.yaml
+# (which targets localhost for running the binary outside compose).
+#
+# Note: Grafana Mimir does NOT expose a separate 4318 OTLP receiver.
+# It ingests OTLP on its single HTTP port at /otlp/v1/metrics (9009 here).
+
+account_id: "act_XXXXXXXXX"
+poll_interval: "10m"
+otlp_endpoint: "http://mimir:9009/otlp/v1/metrics"
+health_port: 8080
+log_level: "info"

@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "campaign_id": "23851234500010003",
+      "campaign_name": "Brand Awareness - Video",
+      "spend": "520.00",
+      "account_currency": "USD",
+      "date_start": "2026-07-05",
+      "date_stop": "2026-07-05",
+      "impressions": "210500",
+      "clicks": "1580",
+      "ctr": "0.750",
+      "cpm": "2.47",
+      "cpc": "0.329",
+      "reach": "185000",
+      "frequency": "1.138",
+      "actions": [
+        {"action_type": "video_view", "value": "45200"},
+        {"action_type": "link_click", "value": "1580"},
+        {"action_type": "purchase", "value": "12"}
+      ],
+      "action_values": [
+        {"action_type": "purchase", "value": "840.00"}
+      ],
+      "purchase_roas": [
+        {"action_type": "purchase", "value": "1.62"}
+      ]
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "MjQZD",
+      "after": "MzYZD"
+    }
+  }
+}

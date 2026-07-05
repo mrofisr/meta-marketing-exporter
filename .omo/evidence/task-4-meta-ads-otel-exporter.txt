@@ -1,0 +1,84 @@
+==========================================================
+TASK 4 EVIDENCE — docker compose Mimir + exporter dev stack
+Date: 2026-07-05T14:04:50Z
+Host: Linux oracle-cloud 6.17.0-1018-oracle #18~24.04.1-Ubuntu SMP Mon Jun 22 18:23:57 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+==========================================================
+
+### FILES CREATED ###
+-rw-rw-r-- 1 ubuntu ubuntu  103 Jul  5 20:58 .env.example
+-rw-rw-r-- 1 ubuntu ubuntu  318 Jul  5 20:58 Dockerfile
+-rw-rw-r-- 1 ubuntu ubuntu  484 Jul  5 20:59 config.docker.yaml
+-rw-rw-r-- 1 ubuntu ubuntu 1026 Jul  5 21:04 docker-compose.yaml
+-rw-rw-r-- 1 ubuntu ubuntu  785 Jul  5 20:58 mimir-config.yaml
+
+### CHECK 1: docker compose config (base file, spec-correct 9009) ###
+EXIT=0
+name: meta-marketing-exporter
+services:
+  exporter:
+    build:
+      context: /home/ubuntu/Documents/projects/meta-marketing-exporter
+      dockerfile: Dockerfile
+    command:
+      - --config
+      - /app/config.yaml
+    container_name: meta-ads-exporter
+    depends_on:
+      mimir:
+        condition: service_started
+        required: true
+    environment:
+      META_ACCESS_TOKEN: your_token_here
+    networks:
+      default: null
+    volumes:
+      - type: bind
+        source: /home/ubuntu/Documents/projects/meta-marketing-exporter/config.docker.yaml
+        target: /app/config.yaml
+        read_only: true
+        bind: {}
+  mimir:
+    command:
+      - -target=all
+      - -config.file=/etc/mimir/mimir-config.yaml
+      - -auth.multitenancy-enabled=false
+    container_name: meta-ads-mimir
+...
+54 /tmp/compose-config.out
+
+### CHECK 2: docker compose up -d mimir + /ready (host port temporarily 19009; 9009 held by unrelated system mimir pid 1569) ###
+ Container meta-ads-mimir Creating 
+ Container meta-ads-mimir Created 
+ Container meta-ads-mimir Starting 
+ Container meta-ads-mimir Started 
+--- curl /ready ---
+Ingester not ready: waiting for 15s after being ready
+
+HTTP_STATUS=503
+--- OTLP endpoint reachable check (expect 405/415/200, proves /otlp/v1/metrics served on same port) ---
+OTLP_HTTP_STATUS=405
+
+--- /ready after 50s total (ingester needs 15s after ring ACTIVE) ---
+ready
+HTTP_STATUS=200
+
+--- container status ---
+meta-ads-mimir Up About a minute 8080/tcp, 0.0.0.0:19009->9009/tcp, [::]:19009->9009/tcp
+
+### CHECK 3: docker compose down ###
+ Container meta-ads-mimir Stopping 
+ Container meta-ads-mimir Stopped 
+ Container meta-ads-mimir Removing 
+ Container meta-ads-mimir Removed 
+ Volume meta-marketing-exporter_mimir-data Removing 
+ Network meta-marketing-exporter_default Removing 
+ Volume meta-marketing-exporter_mimir-data Removed 
+ Network meta-marketing-exporter_default Removed 
+EXIT=0
+
+### Restore docker-compose.yaml to spec-correct 9009:9009 ###
+15:      - "9009:9009"
+31:      # Mount the docker-network config (targets mimir:9009, not localhost).
+
+### FINAL: docker compose config re-validated after restore ###
+EXIT=0

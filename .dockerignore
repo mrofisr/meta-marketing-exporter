@@ -1,0 +1,33 @@
+# VCS
+.git
+.gitignore
+
+# Secrets - must never end up in the build context/image
+.env
+.env.example
+config.local.yaml
+config.local.yml
+
+# Planning / tooling artifacts, not needed to build the binary
+.omo/
+.serena/
+.codegraph/
+
+# Docs
+README.md
+
+# Build artifacts (rebuilt inside the image anyway)
+bin/
+exporter
+
+# Test evidence and fixtures not needed for the production build stage
+**/*_test.go
+**/testdata/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# OS cruft
+.DS_Store

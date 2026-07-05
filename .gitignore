@@ -1,0 +1,27 @@
+# Build artifacts
+/bin/
+/exporter
+*.exe
+*.test
+*.out
+
+# Go build/test cache and coverage
+*.prof
+coverage.txt
+coverage.html
+
+# Environment secrets - never commit real tokens
+.env
+config.local.yaml
+config.local.yml
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+
+# OS cruft
+.DS_Store
+
+# Local tooling caches (already self-managed, but ignore stray artifacts)
+.serena/cache/

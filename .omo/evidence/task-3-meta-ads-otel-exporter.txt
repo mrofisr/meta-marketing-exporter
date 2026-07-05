@@ -1,0 +1,20 @@
+=== RUN   TestNewMeterProvider_ValidEndpoint
+=== RUN   TestNewMeterProvider_ValidEndpoint/http_endpoint_with_path
+=== RUN   TestNewMeterProvider_ValidEndpoint/https_endpoint
+=== RUN   TestNewMeterProvider_ValidEndpoint/with_auth_header
+--- PASS: TestNewMeterProvider_ValidEndpoint (0.03s)
+    --- PASS: TestNewMeterProvider_ValidEndpoint/http_endpoint_with_path (0.00s)
+    --- PASS: TestNewMeterProvider_ValidEndpoint/https_endpoint (0.02s)
+    --- PASS: TestNewMeterProvider_ValidEndpoint/with_auth_header (0.00s)
+=== RUN   TestNewMeterProvider_EmptyEndpoint
+--- PASS: TestNewMeterProvider_EmptyEndpoint (0.00s)
+=== RUN   TestNewMeterProvider_InvalidEndpoint
+=== RUN   TestNewMeterProvider_InvalidEndpoint/missing_host
+=== RUN   TestNewMeterProvider_InvalidEndpoint/malformed_URL
+--- PASS: TestNewMeterProvider_InvalidEndpoint (0.00s)
+    --- PASS: TestNewMeterProvider_InvalidEndpoint/missing_host (0.00s)
+    --- PASS: TestNewMeterProvider_InvalidEndpoint/malformed_URL (0.00s)
+=== RUN   TestNewGaugeInstruments_RegistersAll12
+--- PASS: TestNewGaugeInstruments_RegistersAll12 (0.00s)
+PASS
+ok  	meta-marketing-exporter/internal/otel	(cached)

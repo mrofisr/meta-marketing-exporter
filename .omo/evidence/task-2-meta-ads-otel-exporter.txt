@@ -1,0 +1,10 @@
+=== RUN   TestClient_SuccessfulRequest
+--- PASS: TestClient_SuccessfulRequest (0.01s)
+=== RUN   TestClient_ErrorBodyParsing
+--- PASS: TestClient_ErrorBodyParsing (0.00s)
+=== RUN   TestClient_ErrorBodyWith400
+--- PASS: TestClient_ErrorBodyWith400 (0.00s)
+=== RUN   TestClient_NonJSONErrorStatus
+--- PASS: TestClient_NonJSONErrorStatus (0.00s)
+PASS
+ok  	meta-marketing-exporter/internal/meta	0.047s
