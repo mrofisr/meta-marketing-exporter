@@ -35,6 +35,13 @@ log_level: "info"
 	if cfg.AccountID != "act_123456789" {
 		t.Errorf("AccountID = %q, want %q", cfg.AccountID, "act_123456789")
 	}
+	// Backward compat: single account_id populates AccountIDs slice.
+	if len(cfg.AccountIDs) != 1 || cfg.AccountIDs[0] != "act_123456789" {
+		t.Errorf("AccountIDs = %v, want [act_123456789]", cfg.AccountIDs)
+	}
+	if cfg.IsAllAccounts() {
+		t.Error("IsAllAccounts() = true, want false")
+	}
 	if cfg.PollInterval.Minutes() != 10 {
 		t.Errorf("PollInterval = %v, want 10m", cfg.PollInterval)
 	}
@@ -188,5 +195,120 @@ func TestLoad_FileNotFound(t *testing.T) {
 	_, err := Load("/nonexistent/path/config.yaml")
 	if err == nil {
 		t.Fatal("expected error for missing file, got nil")
+	}
+}
+
+func TestLoad_AccountIDsList(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.yaml")
+	cfgContent := `
+account_ids:
+  - "act_111111111"
+  - "act_222222222"
+poll_interval: "10m"
+otlp_endpoint: "http://localhost:4318/otlp/v1/metrics"
+health_port: 8080
+log_level: "info"
+`
+	if err := os.WriteFile(cfgPath, []byte(cfgContent), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	t.Setenv("META_ACCESS_TOKEN", "valid-token")
+
+	cfg, err := Load(cfgPath)
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	if len(cfg.AccountIDs) != 2 {
+		t.Fatalf("AccountIDs len = %d, want 2", len(cfg.AccountIDs))
+	}
+	if cfg.AccountIDs[0] != "act_111111111" || cfg.AccountIDs[1] != "act_222222222" {
+		t.Errorf("AccountIDs = %v, want [act_111111111 act_222222222]", cfg.AccountIDs)
+	}
+	if cfg.IsAllAccounts() {
+		t.Error("IsAllAccounts() = true, want false")
+	}
+}
+
+func TestLoad_AccountIDsAll(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.yaml")
+	cfgContent := `
+account_ids:
+  - "all"
+poll_interval: "10m"
+otlp_endpoint: "http://localhost:4318/otlp/v1/metrics"
+health_port: 8080
+log_level: "info"
+`
+	if err := os.WriteFile(cfgPath, []byte(cfgContent), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	t.Setenv("META_ACCESS_TOKEN", "valid-token")
+
+	cfg, err := Load(cfgPath)
+	if err != nil {
+		t.Fatalf("Load() error: %v", err)
+	}
+
+	if !cfg.IsAllAccounts() {
+		t.Error("IsAllAccounts() = false, want true")
+	}
+}
+
+func TestLoad_AccountIDsMixedAllInvalid(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.yaml")
+	cfgContent := `
+account_ids:
+  - "all"
+  - "act_123456789"
+poll_interval: "10m"
+otlp_endpoint: "http://localhost:4318/otlp/v1/metrics"
+health_port: 8080
+log_level: "info"
+`
+	if err := os.WriteFile(cfgPath, []byte(cfgContent), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	t.Setenv("META_ACCESS_TOKEN", "valid-token")
+
+	_, err := Load(cfgPath)
+	if err == nil {
+		t.Fatal("expected error for mixing 'all' with specific IDs, got nil")
+	}
+	if !strings.Contains(err.Error(), "cannot mix") {
+		t.Errorf("error = %q, want to contain 'cannot mix'", err.Error())
+	}
+}
+
+func TestLoad_AccountIDsMalformedEntry(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, "config.yaml")
+	cfgContent := `
+account_ids:
+  - "act_111111111"
+  - "bad_id"
+poll_interval: "10m"
+otlp_endpoint: "http://localhost:4318/otlp/v1/metrics"
+health_port: 8080
+log_level: "info"
+`
+	if err := os.WriteFile(cfgPath, []byte(cfgContent), 0o644); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+
+	t.Setenv("META_ACCESS_TOKEN", "valid-token")
+
+	_, err := Load(cfgPath)
+	if err == nil {
+		t.Fatal("expected error for malformed account_id in list, got nil")
+	}
+	if !strings.Contains(err.Error(), "bad_id") {
+		t.Errorf("error = %q, want to contain 'bad_id'", err.Error())
 	}
 }

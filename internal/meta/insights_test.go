@@ -61,7 +61,7 @@ func TestFetchTodayInsights_Pagination(t *testing.T) {
 	c := NewClient("test-token")
 	c.baseURL = srv.URL
 
-	rows, err := FetchTodayInsights(context.Background(), c, "123")
+	rows, err := FetchTodayInsights(context.Background(), c, "act_123")
 	if err != nil {
 		t.Fatalf("FetchTodayInsights returned error: %v", err)
 	}
@@ -126,7 +126,7 @@ func TestFetchTodayInsights_EmptyResult(t *testing.T) {
 	c := NewClient("test-token")
 	c.baseURL = srv.URL
 
-	rows, err := FetchTodayInsights(context.Background(), c, "123")
+	rows, err := FetchTodayInsights(context.Background(), c, "act_123")
 	if err != nil {
 		t.Fatalf("FetchTodayInsights returned error: %v", err)
 	}
@@ -175,7 +175,7 @@ func TestListCampaigns_Pagination(t *testing.T) {
 	c := NewClient("test-token")
 	c.baseURL = srv.URL
 
-	campaigns, err := ListCampaigns(context.Background(), c, "123")
+	campaigns, err := ListCampaigns(context.Background(), c, "act_123")
 	if err != nil {
 		t.Fatalf("ListCampaigns returned error: %v", err)
 	}
@@ -184,5 +184,52 @@ func TestListCampaigns_Pagination(t *testing.T) {
 	}
 	if campaigns[0].Name != "Alpha" || campaigns[2].Name != "Gamma" {
 		t.Errorf("unexpected campaign order: %+v", campaigns)
+	}
+}
+
+func TestListAdAccounts(t *testing.T) {
+	fixture := loadFixture(t, "adaccounts.json")
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/me/adaccounts", func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.Query().Get("fields"); got != "id,name,account_status" {
+			t.Errorf("fields = %q, want id,name,account_status", got)
+		}
+		if got := r.URL.Query().Get("access_token"); got != "test-token" {
+			t.Errorf("access_token = %q, want test-token", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(fixture)
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	c := NewClient("test-token")
+	c.baseURL = srv.URL
+
+	accounts, err := ListAdAccounts(context.Background(), c)
+	if err != nil {
+		t.Fatalf("ListAdAccounts returned error: %v", err)
+	}
+	if len(accounts) != 3 {
+		t.Fatalf("len(accounts) = %d, want 3", len(accounts))
+	}
+
+	// Verify we get all accounts (caller filters by status).
+	active := 0
+	for _, acc := range accounts {
+		if acc.AccountStatus == 1 {
+			active++
+		}
+	}
+	if active != 2 {
+		t.Errorf("active accounts = %d, want 2", active)
+	}
+	if accounts[0].ID != "act_111111111" {
+		t.Errorf("accounts[0].ID = %q, want act_111111111", accounts[0].ID)
+	}
+	if accounts[1].Name != "Disabled Account" {
+		t.Errorf("accounts[1].Name = %q, want Disabled Account", accounts[1].Name)
 	}
 }

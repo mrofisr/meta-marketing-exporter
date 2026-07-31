@@ -3,8 +3,9 @@
 # Secrets (META_ACCESS_TOKEN, OTEL_AUTH_HEADER) are NOT read from this file.
 # Set them as environment variables when running the daemon.
 
-# Meta ad account id (must match ^act_\d+$). Replace with your account id.
-account_id: "act_XXXXXXXXX"
+# Meta ad account IDs to scrape. Must match ^act_\d+$ or be "all".
+account_ids:
+  - "act_861373978964467"
 
 # How often to fetch today's insights from Meta.
 # Range: 5m-15m recommended. Values <5m risk rate limiting.

@@ -42,7 +42,7 @@ func main() {
 	slog.SetDefault(logger)
 
 	slog.Info("starting meta-ads-exporter",
-		"account_id", cfg.AccountID,
+		"account_ids", cfg.AccountIDs,
 		"poll_interval", cfg.PollInterval,
 		"health_port", cfg.HealthPort)
 
@@ -117,24 +117,47 @@ func main() {
 		cancel()
 	}()
 
+	// Resolve target account IDs
+	var targetAccountIDs []string
+	if cfg.IsAllAccounts() {
+		slog.Info("discovering all active ad accounts")
+		accounts, err := meta.ListAdAccounts(ctx, client)
+		if err != nil {
+			slog.Error("failed to list ad accounts", "error", err)
+			os.Exit(1)
+		}
+		for _, acc := range accounts {
+			if acc.AccountStatus == 1 {
+				targetAccountIDs = append(targetAccountIDs, acc.ID)
+			}
+		}
+		if len(targetAccountIDs) == 0 {
+			slog.Warn("no active ad accounts found")
+		}
+		slog.Info("discovered active ad accounts", "count", len(targetAccountIDs), "accounts", targetAccountIDs)
+	} else {
+		targetAccountIDs = cfg.AccountIDs
+	}
+
 	// Poll loop
 	ticker := time.NewTicker(cfg.PollInterval)
 	defer ticker.Stop()
 
 	pollOnce := func() error {
 		return meta.WithBackoff(ctx, func() error {
-			rows, err := meta.FetchTodayInsights(ctx, client, cfg.AccountID)
-			if err != nil {
-				return err
+			var allMetrics []meta.CampaignMetrics
+			for _, accountID := range targetAccountIDs {
+				rows, err := meta.FetchTodayInsights(ctx, client, accountID)
+				if err != nil {
+					return fmt.Errorf("account %s: %w", accountID, err)
+				}
+				for _, row := range rows {
+					allMetrics = append(allMetrics, meta.ExtractMetrics(row))
+				}
 			}
 
-			metrics := make([]meta.CampaignMetrics, len(rows))
-			for i, row := range rows {
-				metrics[i] = meta.ExtractMetrics(row)
-			}
-
-			store.Update(metrics)
-			slog.Debug("poll completed", "campaigns", len(metrics))
+			store.Update(allMetrics)
+			slog.Debug("poll completed", "campaigns", len(allMetrics), "accounts", len(targetAccountIDs))
 			return nil
 		})
 	}

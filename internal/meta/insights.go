@@ -59,7 +59,7 @@ func ListCampaigns(ctx context.Context, client *Client, accountID string) ([]Cam
 	params := url.Values{}
 	params.Set("fields", "id,name")
 
-	path := fmt.Sprintf("act_%s/campaigns", accountID)
+	path := fmt.Sprintf("%s/campaigns", accountID)
 
 	body, err := client.doRequest(ctx, http.MethodGet, path, params)
 	if err != nil {
@@ -94,7 +94,7 @@ func FetchTodayInsights(ctx context.Context, client *Client, accountID string) (
 	params.Set("date_preset", "today")
 	params.Set("fields", "campaign_id,campaign_name,spend,account_currency,date_start,date_stop,impressions,clicks,ctr,cpm,cpc,reach,frequency,actions,action_values,purchase_roas")
 
-	path := fmt.Sprintf("act_%s/insights", accountID)
+	path := fmt.Sprintf("%s/insights", accountID)
 
 	body, err := client.doRequest(ctx, http.MethodGet, path, params)
 	if err != nil {
@@ -172,4 +172,43 @@ func (c *Client) doFullURL(ctx context.Context, rawURL string) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+// AdAccount represents a Meta ad account with its ID, name, and status.
+type AdAccount struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	AccountStatus int    `json:"account_status"`
+}
+
+// ListAdAccounts fetches all ad accounts accessible via the client's token,
+// following pagination cursors until exhausted. Returns all accounts regardless
+// of status; callers should filter by AccountStatus if needed (1 = active).
+func ListAdAccounts(ctx context.Context, client *Client) ([]AdAccount, error) {
+	params := url.Values{}
+	params.Set("fields", "id,name,account_status")
+
+	body, err := client.doRequest(ctx, http.MethodGet, "me/adaccounts", params)
+	if err != nil {
+		return nil, fmt.Errorf("list ad accounts: %w", err)
+	}
+
+	var accounts []AdAccount
+	nextURL, err := accumulatePage(body, &accounts)
+	if err != nil {
+		return nil, fmt.Errorf("list ad accounts: parse page: %w", err)
+	}
+
+	for nextURL != "" {
+		body, err = client.doFullURL(ctx, nextURL)
+		if err != nil {
+			return nil, fmt.Errorf("list ad accounts: follow pagination: %w", err)
+		}
+		nextURL, err = accumulatePage(body, &accounts)
+		if err != nil {
+			return nil, fmt.Errorf("list ad accounts: parse page: %w", err)
+		}
+	}
+
+	return accounts, nil
 }

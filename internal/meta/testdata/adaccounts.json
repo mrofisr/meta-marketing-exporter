@@ -1,0 +1,8 @@
+{
+  "data": [
+    {"id": "act_111111111", "name": "Active Account", "account_status": 1},
+    {"id": "act_222222222", "name": "Disabled Account", "account_status": 2},
+    {"id": "act_333333333", "name": "Another Active", "account_status": 1}
+  ],
+  "paging": {}
+}

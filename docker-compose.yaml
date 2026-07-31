@@ -12,7 +12,7 @@ services:
       - "-auth.multitenancy-enabled=false"
     ports:
       # HTTP: query API, /ready health check, AND OTLP ingestion at /otlp/v1/metrics
-      - "9009:9009"
+      - "9019:9009"
     volumes:
       - ./mimir-config.yaml:/etc/mimir/mimir-config.yaml:ro
       - mimir-data:/data

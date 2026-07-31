@@ -25,8 +25,16 @@ var accountIDPattern = regexp.MustCompile(`^act_\d+$`)
 // OTEL_AUTH_HEADER) and are not present in the YAML file. All other fields
 // come from the YAML file.
 type Config struct {
-	// AccountID is the Meta ad account id (must match ^act_\d+$).
+	// AccountID is a single Meta ad account id (kept for backward compatibility).
+	// Deprecated: use AccountIDs instead.
 	AccountID string `yaml:"account_id"`
+
+	// AccountIDs is the list of Meta ad account IDs to scrape.
+	// Each entry must match ^act_\d+$, or use the special value "all" to
+	// discover and scrape all active accounts accessible via the token.
+	// If "all" is specified it must be the sole entry.
+	// When empty, falls back to AccountID for backward compatibility.
+	AccountIDs []string `yaml:"account_ids"`
 
 	// PollInterval is the cadence at which insights are polled from Meta.
 	// Must be > 0.
@@ -68,6 +76,11 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("config: parse %s: %w", path, err)
 	}
 
+	// Backward compat: if account_ids is empty but account_id is set, use it.
+	if len(cfg.AccountIDs) == 0 && cfg.AccountID != "" {
+		cfg.AccountIDs = []string{cfg.AccountID}
+	}
+
 	cfg.AccessToken = os.Getenv("META_ACCESS_TOKEN")
 	cfg.AuthHeader = os.Getenv("OTEL_AUTH_HEADER")
 
@@ -77,18 +90,28 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
-// Validate enforces field-level invariants: AccountID matches ^act_\d+$,
+// Validate enforces field-level invariants: AccountIDs contains valid entries,
 // PollInterval > 0, OTLPEndpoint is a parseable URL, META_ACCESS_TOKEN is set.
 // Errors are prefixed with "config:" and name the offending field.
 func (c *Config) Validate() error {
 	if c.AccessToken == "" {
 		return errors.New("config: META_ACCESS_TOKEN env var is required")
 	}
-	if c.AccountID == "" {
-		return errors.New("config: account_id is required")
+	if len(c.AccountIDs) == 0 {
+		return errors.New("config: account_ids (or account_id) is required")
 	}
-	if !accountIDPattern.MatchString(c.AccountID) {
-		return fmt.Errorf("config: account_id %q must match pattern act_<digits>", c.AccountID)
+	hasAll := false
+	for _, id := range c.AccountIDs {
+		if id == "all" {
+			hasAll = true
+			continue
+		}
+		if !accountIDPattern.MatchString(id) {
+			return fmt.Errorf("config: account_id %q must match pattern act_<digits> or be \"all\"", id)
+		}
+	}
+	if hasAll && len(c.AccountIDs) > 1 {
+		return errors.New("config: account_ids cannot mix \"all\" with specific account IDs")
 	}
 	if c.PollInterval <= 0 {
 		return fmt.Errorf("config: poll_interval must be > 0 (got %s)", c.PollInterval)
@@ -104,6 +127,11 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("config: otlp_endpoint %q must include scheme and host", c.OTLPEndpoint)
 	}
 	return nil
+}
+
+// IsAllAccounts returns true if the configuration specifies scraping all accounts.
+func (c *Config) IsAllAccounts() bool {
+	return len(c.AccountIDs) == 1 && c.AccountIDs[0] == "all"
 }
 
 // LoadFromFlags is a convenience helper for cmd/main.go: it registers a
